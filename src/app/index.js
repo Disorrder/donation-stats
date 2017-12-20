@@ -1,14 +1,25 @@
-// import Vue from 'vue';
-// import VueRouter from 'vue-router';
-
-const Vue = require('vue/dist/vue.js');
-const VueRouter = require('vue-router');
+import './vendor';
+import Vue from 'vue';
+import VueRouter from 'vue-router';
 Vue.use(VueRouter);
-console.log(Vue);
 
-var app = new Vue({
-    el: '#app',
-    data: {
-        msg: 'QWE'
-    }
+var router = new VueRouter({
+    routes: [
+        {name: 'income', path: '/', component: require('app/income').default}
+    ]
+});
+
+console.log(router);
+
+const data = require('./_data');
+
+$(() => {
+    var app = new Vue({
+        el: '#app',
+        router,
+        data: {
+            TEST: 'TEST',
+            transactions: data.transactions,
+        }
+    });
 });

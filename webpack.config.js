@@ -10,6 +10,8 @@ const pug = require('pug');
 const WebpackNotifierPlugin = require('webpack-notifier');
 const CleanWebpackPlugin  = require('clean-webpack-plugin');
 const CopyWebpackPlugin   = require('copy-webpack-plugin');
+const HtmlWebpackPlugin   = require('html-webpack-plugin');
+const OpenBrowserPlugin = require('open-browser-webpack-plugin');
 
 // env variables
 process.env.WEBPACK = true;
@@ -20,20 +22,20 @@ function isMac() { return os.platform() == 'darwin' }
 function isWin() { return os.platform() == 'win32' }
 
 var flags = {
-    watch: isDev(),
-    // watch: isDev(),
+    watch: false,
     clean: isProd(),
     sourcemaps: isDev() && !isMac(),
     notify: isDev(),
+    openBrowser: process.argv.some((v) => ~v.indexOf('webpack-dev-server.js') || ~v.indexOf('--open-browser')),
 }
 
-console.log('Builder is running in', process.env.NODE_ENV, 'mode.');
+console.log('Builder is running in', process.env.NODE_ENV, 'mode.', process.argv, flags);
 
 module.exports = {
     context: path.resolve(cfg.path.app),
     watch: flags.watch,
     entry: {
-        main: `app/pages/main/index.js`,
+        main: `app/index.js`,
     },
     output: {
         path: path.resolve(__dirname, cfg.path.build),
@@ -42,6 +44,20 @@ module.exports = {
         library: '[name]'
     },
     devtool: flags.sourcemaps ? "cheap-source-map" : false,
+    devServer: {
+        port: cfg.webserver.port,
+        host: cfg.webserver.host,
+        // hot: true,
+        inline: true,
+        disableHostCheck: true,
+        historyApiFallback: true,
+        contentBase: cfg.path.src,
+        watchOptions: {
+            aggregateTimeout: 300,
+            poll: 1000
+        },
+        stats: 'minimal',
+    },
     resolve: {
         modules: [
             path.join(__dirname, "src"),
@@ -53,7 +69,7 @@ module.exports = {
     },
     module: {
         rules: [
-            // { test: /\.js$/, loader: "babel-loader", exclude: [/node_modules/, /bower_components/], query: { presets: ['es2015', 'stage-2'] } },
+            { test: /\.js$/, loader: "babel-loader", exclude: [/node_modules/, /bower_components/], query: { presets: ['es2015', 'stage-2'] } },
             { test: /\.(pug|jade)$/, loader: "pug-loader" },
             { test: /\.css$/, use: ["style-loader", "css-loader"] },
             { test: /\.styl$/, use: ["style-loader", "css-loader", "stylus-loader"] },
@@ -72,12 +88,20 @@ module.exports = {
     plugins: [
         flags.notify ? new WebpackNotifierPlugin({excludeWarnings: true}) : new Function(),
         flags.clean ? new CleanWebpackPlugin([cfg.path.build]) : new Function(),
+        flags.openBrowser ? new OpenBrowserPlugin({url: `http://${cfg.webserver.hostname}:${cfg.webserver.port}`}) : new Function(),
 
         new webpack.LoaderOptionsPlugin({
             debug: true
         }),
 
         // new webpack.HotModuleReplacementPlugin(),
+
+        new HtmlWebpackPlugin({
+            filename: 'index.html',
+            template: 'index.pug',
+            inject: 'head',
+            // chunksSortMode: chunksSortOrder(['vendor', 'main']),
+        }),
 
         new webpack.optimize.CommonsChunkPlugin({
             name: 'commons',
@@ -88,11 +112,11 @@ module.exports = {
             'NODE_ENV': JSON.stringify(process.env.NODE_ENV)
         }),
 
-        new CopyWebpackPlugin([
-            { from: 'config.js' },
-            { from: 'favicon.*' },
-            { from: 'robots.txt' },
-        ]),
+        // new CopyWebpackPlugin([
+        //     { from: 'config.js' },
+        //     { from: 'favicon.*' },
+        //     { from: 'robots.txt' },
+        // ]),
 
         new webpack.ProvidePlugin({
            $: 'jquery',
@@ -104,11 +128,11 @@ module.exports = {
     ]
 }
 
-var fs = require('fs');
-{ // check config.js
-    let configPath = path.resolve(cfg.path.app, 'config.js');
-    let configDefPath = path.resolve(cfg.path.app, 'config.default.js');
-    if (!fs.existsSync(configPath)) {
-        fs.writeFileSync(configPath, fs.readFileSync(configDefPath));
-    }
-}
+// var fs = require('fs');
+// { // check config.js
+//     let configPath = path.resolve(cfg.path.app, 'config.js');
+//     let configDefPath = path.resolve(cfg.path.app, 'config.default.js');
+//     if (!fs.existsSync(configPath)) {
+//         fs.writeFileSync(configPath, fs.readFileSync(configDefPath));
+//     }
+// }
