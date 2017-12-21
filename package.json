@@ -7,7 +7,9 @@
     "start": "electron .",
     "web": "webpack-dev-server --progress",
     "dev": "webpack --watch",
-    "build": "webpack"
+    "build": "webpack",
+    "heroku-postbuild": "npm run build",
+    "heroku-start": "http-server .build -p $PORT -r -o"
   },
   "keywords": [
     "Electron"
