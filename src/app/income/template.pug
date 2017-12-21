@@ -1,1 +1,28 @@
-div Hello
+div#income.container
+    h3 Income
+    .row
+        .col-sm-12
+            table.table
+                thead
+                    tr
+                        th Date
+                        th Name
+                        th Amount
+                        th Service
+                        
+                tbody
+                    tr
+                        td(title="Add" @click="addTransaction()"): button.btn.btn-success +
+                        td: input(v-model="newTransaction.name")
+                        td: input(v-model="newTransaction.amount")
+                        td: input(v-model="newTransaction.source")
+                        
+                    tr(v-for="item in sort($parent.transactions)")
+                        td(:title="tableDate(item.date)") {{tableTime(item.date)}}
+                        td {{item.name}}
+                        td {{item.amount + ' ' + item.currency}}
+                        td {{item.source}}
+
+                        
+
+    

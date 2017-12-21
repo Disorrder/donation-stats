@@ -5,20 +5,17 @@ Vue.use(VueRouter);
 
 var router = new VueRouter({
     routes: [
-        {name: 'income', path: '/', component: require('app/income').default}
+        {name: 'income', path: '/', component: require('app/income').default},
+        {name: 'summary', path: '/summary', component: require('app/summary').default}
     ]
 });
 
-console.log(router);
-
 const data = require('./_data');
-
 $(() => {
     var app = new Vue({
         el: '#app',
         router,
         data: {
-            TEST: 'TEST',
             transactions: data.transactions,
         }
     });

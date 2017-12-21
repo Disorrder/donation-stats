@@ -1,6 +1,7 @@
 import $ from 'jquery';
 import _ from 'lodash';
-window.$ = window.jQuery = $;
+import moment from 'moment';
+_.each({jQuery: $, $, _, moment}, (v, k) => window[k] = v);
 
 import 'bootstrap'; // load all scripts
 import 'bootstrap/dist/css/bootstrap.css';

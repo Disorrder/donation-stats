@@ -22,15 +22,18 @@ export default {
             this.newTransaction = Object.assign({}, defaultTransaction);
             this.newTransaction.amount = _.random(10, 300); //? test
         },
-        sort(arr, params) {
-            if (!params) params = this.sortParams;
-            var res = _.sortBy(arr, params.field);
-            if (!params.asc) res.reverse();
+        sumTransactions(arr) {
+            var res = _.groupBy(arr, 'name');
+            res = _.map(res, (v, k) => {
+                return {
+                    name: k,
+                    amount: v.map((v) => v.amount * (v.currencyRate || 1)).reduce((sum, v) => sum + v),
+                    currency: 'RUR'
+                }
+            });
+            res = _.sortBy(res, 'amount');
+            if (!this.sortParams.asc) res.reverse();
             return res;
         }
-    },
-    created() {
-        // this.transactions = this.$parent.transactions;
-
     }
 };

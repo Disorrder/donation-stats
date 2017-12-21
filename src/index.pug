@@ -8,11 +8,10 @@ html
 
     body
         div#app
-            nav.navbar.navbar-light.bg-light
+            nav.navbar.navbar-expand.navbar-light.bg-light
                 ul.navbar-nav
-                    li.nav-item: router-link.nav-link(to="/income") Income
+                    li.nav-item: router-link.nav-link(:to="{name: 'income'}") Income
+                    li.nav-item: router-link.nav-link(:to="{name: 'summary'}") Summary
 
-            div {{TEST}}
+            //- div {{TEST}}
             router-view
-    //- script.
-        require('./app');
